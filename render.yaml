@@ -1,0 +1,59 @@
+services:
+  - type: web
+    name: nclex-api
+    env: python
+    plan: free
+    branch: production-ready
+    buildCommand: "cd backend && ./build.sh"
+    startCommand: "cd backend && gunicorn config.wsgi:application"
+    envVars:
+      # Database
+      - key: DATABASE_URL
+        sync: false   # Use value from Render Dashboard for Supabase
+      # Python version
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      # Debug
+      - key: DEBUG
+        value: "False"
+      # JWT
+      - key: JWT_SECRET_KEY
+        sync: false
+      # Email
+      - key: EMAIL_HOST
+        value: "smtp.gmail.com"
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        value: "NCLEX <noreply@nclex.com>"
+      # Cloudinary
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      # Frontend URL
+      - key: FRONTEND_URL
+        value: "https://nclex-beryl.vercel.app"
+      # Payment Gateways (optional for now)
+      - key: PAYSTACK_PUBLIC_KEY
+        sync: false
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: PAYSTACK_WEBHOOK_SECRET
+        sync: false
+      - key: FLUTTERWAVE_PUBLIC_KEY
+        sync: false
+      - key: FLUTTERWAVE_SECRET_KEY
+        sync: false
+      - key: FLUTTERWAVE_WEBHOOK_SECRET
+        sync: false
+      - key: FLUTTERWAVE_ENCRYPTION_KEY
+        sync: false
