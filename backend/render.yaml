@@ -1,57 +1,25 @@
 services:
+  # Database
+  - type: pserv
+    name: nclex-db
+    env: postgresql
+    plan: free
+    databaseName: nclex_db
+    user: nclex_user
+
+  # Web Service  
   - type: web
-    name: nclex-backend
+    name: nclex-api
     env: python
-    plan: starter
-    buildCommand: pip install -r requirements.production.txt
-    startCommand: gunicorn config.wsgi:application
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
-      - key: SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: false
-      - key: ALLOWED_HOSTS
-        value: your-backend-name.onrender.com
-      - key: FRONTEND_URL
-        value: https://your-domain.vercel.app
-      - key: SITE_URL
-        value: https://your-backend-name.onrender.com
       - key: DATABASE_URL
         fromDatabase:
-          name: nclex-database
+          name: nclex-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: nclex-redis
-          property: connectionString
-      - key: PAYSTACK_PUBLIC_KEY
-        sync: false
-      - key: PAYSTACK_SECRET_KEY
-        sync: false
-      - key: PAYSTACK_WEBHOOK_SECRET
-        sync: false
-      - key: EMAIL_HOST
-        value: smtp.gmail.com
-      - key: EMAIL_PORT
-        value: 587
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
-      - key: DEFAULT_FROM_EMAIL
-        value: NCLEX <noreply@yourdomain.com>
-
-databases:
-  - name: nclex-database
-    databaseName: nclex_production
-    user: nclex_user
-    plan: starter
-
-services:
-  - type: redis
-    name: nclex-redis
-    plan: starter
-    maxmemoryPolicy: allkeys-lru
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: "False"
