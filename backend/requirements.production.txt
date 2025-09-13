@@ -30,14 +30,15 @@ requests==2.32.4
 beautifulsoup4==4.12.3
 
 # Image/Video Processing
-Pillow==11.3.0
-numpy==1.26.2
+numpy>=2.0,<2.3
 opencv-python==4.12.0.88
 opencv-python-headless==4.12.0.88
 moviepy==2.2.1
 imageio==2.37.0
 imageio-ffmpeg==0.6.0
 yt-dlp==2025.7.21
+Pillow==11.3.0
+
 
 # Development Utilities
 ipython==8.24.0
