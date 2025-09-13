@@ -41,6 +41,7 @@ Pillow==11.3.0
 
 
 # Development Utilities
+gunicorn==23.0.0
 ipython==8.24.0
 jupyter-client==8.6.2
 jupyter-core==5.7.2
