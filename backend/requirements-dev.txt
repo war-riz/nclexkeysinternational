@@ -1,0 +1,19 @@
+# Include production requirements first
+-r requirements.txt
+
+# Dev-only packages
+asttokens==2.4.1
+comm==0.2.2
+debugpy==1.8.1
+executing==2.0.1
+ipykernel==6.29.4
+ipython==8.24.0
+jedi==0.19.1
+jupyter_client==8.6.2
+jupyter_core==5.7.2
+matplotlib-inline==0.1.7
+nest-asyncio==1.6.0
+stack-data==0.6.3
+traitlets==5.14.3
+virtualenv==20.25.0
+virtualenvwrapper-win==1.2.7
