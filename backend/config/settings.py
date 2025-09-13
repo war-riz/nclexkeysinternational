@@ -1,5 +1,5 @@
 """
-Updated settings.py for production deployment
+Updated settings.py for production deployment - FIXED VERSION
 """
 
 from pathlib import Path
@@ -24,15 +24,16 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-# Updated ALLOWED_HOSTS for production
+# ALLOWED_HOSTS for production
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'api.nclex.com',
     'nclex-backend.onrender.com',
     '0.0.0.0',
+    'nclex-beryl.vercel.app',
 ]
 
 # Allow .ngrok-free.app domains for testing
@@ -49,7 +50,7 @@ CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
 CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
 CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
 
-# CORS Settings for production
+# Fixed CORS Settings for production
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -89,22 +90,24 @@ if DEBUG:
         r"^http://127\.0\.0\.1:\d+$",
     ]
 
-# Security Settings for Production
+# Fixed Security Settings for Production
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'true').lower() == 'true'
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000'))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = 'DENY'
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 else:
     SECURE_SSL_REDIRECT = False
     SECURE_HSTS_SECONDS = 0
 
-# Celery Configuration with Redis (for production)
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+# Fixed Celery Configuration - Use environment variables properly
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'memory://')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'rpc://')
+CELERY_TIMEZONE = 'UTC'
 
 # Payment Gateway Settings
 PAYMENT_GATEWAYS = {
@@ -181,7 +184,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -263,13 +266,34 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Cache Configuration
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+# Cache Configuration - Use Redis in production, memory for development
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
     }
-}
+else:
+    # Use Redis for production caching if available
+    REDIS_URL = os.getenv('REDIS_URL')
+    if REDIS_URL:
+        CACHES = {
+            'default': {
+                'BACKEND': 'django_redis.cache.RedisCache',
+                'LOCATION': REDIS_URL,
+                'OPTIONS': {
+                    'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                }
+            }
+        }
+    else:
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                'LOCATION': 'unique-snowflake',
+            }
+        }
 
 # Session Settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -301,12 +325,13 @@ REST_FRAMEWORK = {
     }
 }
 
-# Static files - simplified for API-only app
+# Fixed Static files configuration
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Only collect admin static files
+# Create staticfiles directory if it doesn't exist
 STATICFILES_DIRS = []
+os.makedirs(STATIC_ROOT, exist_ok=True)
 
 # Use WhiteNoise for serving static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -368,25 +393,9 @@ USE_TZ = True
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Include all your Celery settings here (keeping them as they are)
-CELERY_TIMEZONE = 'UTC'
-CELERY_TASK_ROUTES = {
-    'management.tasks.cleanup_old_records': {'queue': 'cleanup'},
-    'management.tasks.cleanup_expired_tokens': {'queue': 'cleanup'},
-    'management.tasks.process_scheduled_deletions': {'queue': 'high_priority'},
-    'management.tasks.send_deletion_reminders': {'queue': 'emails'},
-    'management.tasks.database_health_check': {'queue': 'monitoring'},
-}
-
 # Rate Limiting Settings
 RATELIMIT_ENABLE = True
 RATELIMIT_USE_CACHE = 'default'
-
-# Celery Settings (for background tasks)
-# Celery Configuration - Using local memory
-CELERY_BROKER_URL = 'memory://'
-CELERY_RESULT_BACKEND = 'rpc://'
-CELERY_TIMEZONE = 'UTC'
 
 # Celery Beat Schedule
 CELERY_BEAT_SCHEDULE = {
