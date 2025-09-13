@@ -25,19 +25,17 @@ whitenoise==6.6.0
 
 # HTTP Requests (for payments)
 requests==2.32.3
+beautifulsoup4==4.12.3
 
-# Image Processing
+# Image/Video Processing
 Pillow==10.1.0
-
-# Video Processing
+numpy==1.26.2
 opencv-python-headless==4.8.1.78
 
 # Date/Time utilities
 python-dateutil==2.9.0.post0
 pytz==2024.1
+tzdata==2024.1
 
 # Production Server
 gunicorn==21.2.0
-
-# Email
-beautifulsoup4==4.12.3
