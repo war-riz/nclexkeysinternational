@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: nclex-api
+    name: nclex-backend
     env: python
     plan: free
     branch: production-ready
